@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CCレモン・スマートバトル</title>
+<style>
+:root{color-scheme:light;--ink:#243b35;--line:#728b76;--paper:#edf2dc;--muted:#63736a}
+*{box-sizing:border-box}
+body{margin:0;padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));background:#e8eee2;color:#20332d;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
+#app{max-width:620px;margin:auto;display:flex;flex-direction:column;gap:12px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted)}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:2px solid var(--line);border-radius:11px;padding:11px 8px;font-weight:800;background:var(--paper);color:var(--ink);font-size:15px;min-height:48px}
+button:disabled{opacity:.4;cursor:not-allowed}button.primary{background:#b8dc91;border-color:#8ab66c}button.selected{outline:3px solid #a8d47c;background:#d6ebbd}
+button:focus-visible,summary:focus-visible{outline:3px solid #2367c9;outline-offset:2px}
+.actions{display:flex;gap:8px}.actions button{flex:1}
+.arena{background:linear-gradient(145deg,#172d3a,#263f49);color:#f4f8e9;border:2px solid #66818a;border-radius:16px;padding:14px}
+.row{display:flex;align-items:center;gap:12px}.row .energy{flex:1}.monster{font-size:54px;line-height:1.2;min-width:65px;text-align:center}
+.arena hr{border:0;border-top:1px solid #718991;margin:16px 0}
+.energyline{display:flex;justify-content:space-between;font-size:13px;font-weight:800}
+.meter{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px}.tick{height:15px;border:2px solid #8da18a;border-radius:4px;background:#d7dfcb}
+.tick.on{background:#f4c74c;border-color:#e3a928;box-shadow:0 0 7px #f4c74c}.meterlabel{display:flex;justify-content:space-between;font-size:10px;margin-top:3px;font-weight:800}
+.countarea{text-align:center;margin-top:15px}.count{font-size:clamp(40px,10vw,52px);font-weight:1000;letter-spacing:3px;text-shadow:0 2px 12px #9bcf9b}
+.countlabel{font-size:12px;letter-spacing:2px;font-weight:800}.progress{height:7px;background:#718991;border-radius:8px;overflow:hidden;margin-top:10px}
+.progress>div{height:100%;width:0;background:#9bcf78;transition:width .1s}.message{background:#f3f5e6;color:#243b35;border-radius:10px;padding:12px;min-height:57px;font-weight:900;border:2px solid #82977a;margin-top:12px}
+.panel{background:#edf2dc;color:#243b35;border:2px solid #8b9d7d;border-radius:12px;padding:12px}.panel h2{font-size:15px;margin:0 0 9px}
+.moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.moves button{min-height:86px}.actionicon{font-size:29px;line-height:1.3}
+#selected{text-align:center;font-size:12px;font-weight:800;margin-top:10px}
+details{background:#fff9;border:1px solid #c5d0c2;border-radius:12px;padding:11px}summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between}summary::-webkit-details-marker{display:none}
+.menucontent{display:flex;flex-direction:column;gap:14px;margin-top:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.grid3 button{font-size:13px;padding:10px 4px}
+.smallpanel{background:#f7f9ed;border:1px solid #c8d2bd;border-radius:9px;padding:8px;text-align:center}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+.logrow{padding:9px 0;border-top:1px solid #d4ddcf;font-size:12px}.logline{display:flex;justify-content:space-between;gap:8px;margin-top:4px}.muted{font-size:12px;color:var(--muted)}
+@media(max-width:600px){body{padding:calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left))}#app{gap:9px;max-width:100%}header{align-items:flex-start}h1{font-size:clamp(17px,5vw,21px)}.sub{font-size:11px}.arena{padding:11px;border-radius:13px}.monster{font-size:clamp(38px,12vw,48px);min-width:44px}.row{gap:8px}.moves{gap:8px}.moves button{min-height:90px;padding:10px 5px;font-size:clamp(14px,4vw,16px)}.actionicon{font-size:clamp(25px,8vw,31px)}.actions{gap:7px}.actions button{padding:10px 5px;font-size:14px}.count{font-size:clamp(38px,13vw,52px)}.message{padding:10px;min-height:54px;font-size:14px}details{padding:10px}}
+@media(min-width:601px) and (max-width:900px){body{padding:18px}#app{max-width:760px}.moves{grid-template-columns:repeat(3,minmax(0,1fr))}.moves button{min-height:92px}}
+@media(orientation:landscape) and (max-height:520px){body{padding:8px}#app{gap:7px}.arena{padding:9px}.monster{font-size:38px;min-width:45px}.moves{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.moves button{min-height:64px;padding:6px 3px}.actionicon{font-size:23px}.countarea{margin-top:8px}.count{font-size:38px}.arena hr{margin:9px 0}}
+</style>
+</head>
+<body>
+<main id="app">
+<header><div><h1>🍋 CC LEMON BATTLE</h1><div class="sub">SMART AI EDITION</div></div><span id="status" class="sub">待機中</span></header>
+<div class="actions"><button id="start" class="primary">▶ バトル開始</button><button id="reset">↻ リセット</button></div>
+<section class="arena">
+<div class="energyline"><span>🤖 CHATGPT</span><span id="enemyTag">AI NORMAL</span></div>
+<div class="row" style="margin-top:8px"><div class="energy"><div class="energyline"><span>ENERGY</span><span><b id="cc">0</b> / 5</span></div><div class="meter" id="cmeter"></div><div class="meterlabel"><span>0</span><span>5</span></div></div><div class="monster" id="enemy">🤖</div></div>
+<hr>
+<div class="row"><div class="monster" id="player">🦖</div><div class="energy"><div class="energyline"><span>YOUR ENERGY</span><span><b id="mc">0</b> / 5</span></div><div class="meter" id="pmeter"></div><div class="meterlabel"><span>0</span><span>5</span></div></div></div>
+<div class="countarea"><div class="countlabel">COUNTDOWN</div><div class="count" id="beat">READY</div><div id="beattext" style="font-weight:800">バトル開始を待っている…</div><div class="progress"><div id="progress"></div></div></div>
+<div class="message" id="message">野生のチャッピーが現れた！</div>
+</section>
+<section class="panel"><h2>⚔️ どうする？</h2><div class="moves">
+<button id="b1"><span class="actionicon">⚡</span><br>チャージ</button>
+<button id="b2"><span class="actionicon">💥</span><br>はー！</button>
+<button id="b3"><span class="actionicon">🛡️</span><br>バリア</button>
+<button id="b4"><span class="actionicon">🌟</span><br>貫通ビーム (5)</button>
+<button id="b5"><span class="actionicon">🪞</span><br>ミラー (2)</button>
+</div><div id="selected">未選択（時間切れで何もしない）</div></section>
+<details><summary><span>⚙️ バトルメニュー</span><span class="muted">設定・ログ・AI情報　▾</span></summary><div class="menucontent">
+<section><b>難易度</b><div class="grid3" style="margin-top:8px"><button id="easy">🟢 初級</button><button id="normal" class="selected">🟡 標準</button><button id="hard">🔴 上級</button></div><div class="muted" id="difficultyText" style="margin-top:6px">標準：行動傾向を読み、状況に合わせて作戦を変える。</div></section>
+<div class="actions"><button id="sound">🔊 音 ON</button><button id="speed">⏱️ 普通</button></div>
+<section><b>🧠 AI学習状況</b><div class="muted" style="margin-top:4px">過去の対戦で記録した君の行動傾向</div><div class="stats"><div class="smallpanel">⚡ <b id="freq1">0%</b><div class="muted">チャージ</div></div><div class="smallpanel">💥 <b id="freq2">0%</b><div class="muted">はー！</div></div><div class="smallpanel">🛡️ <b id="freq3">0%</b><div class="muted">バリア</div></div></div><div class="muted" id="learned" style="margin-top:7px">学習データ：0手</div><div class="muted" id="thinking" style="margin-top:7px">君の行動を観察している…</div></section>
+<section><b>📜 バトルログ</b><div id="history" style="margin-top:7px" class="muted">まだ履歴はない。</div></section><div class="muted">学習データはリセット後も、このブラウザに保存される。別のブラウザ・端末とは共有されない。</div></div></details>
+<div class="muted" style="text-align:center">キー操作：1 チャージ / 2 はー！ / 3 バリア / 4 貫通 / 5 ミラー（未入力は何もしない）</div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const N={0:'何もしない',1:'チャージ',2:'はー！',3:'バリア',4:'貫通ビーム',5:'ミラー'},I={0:'➖',1:'⚡',2:'💥',3:'🛡️',4:'🌟',5:'🪞'};
+let mc=0,cc=0,choice=0,round=0,history=[],running=false,over=false,locked=false,sound=true,speed=1000,timer=null,difficulty='normal';
+const STORE='ccLemonSmartAI_v1';
+let learned=[0,0,0,0],recent=[],aiThought='君の行動を観察している…';
+try{const saved=JSON.parse(localStorage.getItem(STORE)||'null');if(saved){if(Array.isArray(saved.learned)&&saved.learned.length===4)learned=saved.learned;if(Array.isArray(saved.recent))recent=saved.recent.filter(x=>[1,2,3].includes(x)).slice(-20);}}catch(e){}
+function saveLearning(){try{localStorage.setItem(STORE,JSON.stringify({learned,recent}));}catch(e){}}
+function meter(id,value){const el=$(id);el.innerHTML='';for(let i=1;i<=5;i++){const t=document.createElement('div');t.className='tick'+(i<=value?' on':'');el.append(t);}}
+function tone(f,d=.15,type='sine',v=.07,delay=0){if(!sound)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=window._ccAudio||(window._ccAudio=new C());if(ctx.state==='suspended')ctx.resume();const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,ctx.currentTime+delay);g.gain.setValueAtTime(v,ctx.currentTime+delay);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+d);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+d);}catch(e){}}
+function victorySound(){[[523,0,.18],[659,.16,.18],[784,.32,.18],[1047,.5,.3],[784,.82,.18],[1047,1,.55],[1318,1.55,.7]].forEach(x=>tone(x[0],x[2],'triangle',.11,x[1]));}
+function defeatSound(){[[392,0,.3],[330,.22,.35],[262,.48,.4],[196,.76,.65],[130,1.05,.8],[98,1.55,.85]].forEach(x=>tone(x[0],x[2],'sawtooth',.09,x[1]));}
+function fx(t){if(t==='beat')tone(650,.07,'square',.04);if(t==='charge'){tone(370,.12);tone(560,.16,'sine',.07,.12);}if(t==='beam'){tone(850,.14,'sawtooth');tone(350,.23,'sawtooth',.07,.12);}if(t==='shield'){tone(260,.2,'triangle');tone(520,.2,'sine',.07,.12);}if(t==='clash'){tone(170,.24,'square');tone(100,.28,'triangle',.07,.18);}}
+function render(){
+$('mc').textContent=mc;$('cc').textContent=cc;meter('pmeter',mc);meter('cmeter',cc);
+$('status').textContent=over?'決着！':running?'バトル中':'待機中';
+$('start').disabled=running||over;$('start').textContent=over?'対戦終了':running?'バトル中':'▶ バトル開始';
+[1,2,3,4,5].forEach(n=>{$('b'+n).classList.toggle('selected',choice===n);$('b'+n).disabled=!running||locked||over||(n===2&&mc<1)||(n===4&&mc<5)||(n===5&&mc<2);});
+$('selected').textContent=choice?'選択中：'+N[choice]:'未選択（時間切れで何もしない）';
+const total=learned[1]+learned[2]+learned[3];[1,2,3].forEach(n=>$('freq'+n).textContent=(total?Math.round(learned[n]/total*100):0)+'%');
+$('learned').textContent='学習データ：'+total+'手 / 直近の記憶：'+recent.length+'手';$('thinking').textContent=aiThought;
+['easy','normal','hard'].forEach(x=>$(x).classList.toggle('selected',difficulty===x));$('enemyTag').textContent='AI '+({easy:'EASY',normal:'NORMAL',hard:'HARD'}[difficulty]);
+}
+[1,2,3,4,5].forEach(n=>$('b'+n).addEventListener('click',()=>select(n)));
+function select(n){if(!running||locked||over||(n===2&&mc<1)||(n===4&&mc<5)||(n===5&&mc<2))return;choice=n;tone(480,.06);render();}
+function wait(ms){return new Promise(r=>{timer=setTimeout(r,ms);});}
+function predict(){const total=learned[1]+learned[2]+learned[3];let score=[0,.7,.7,.7];for(let n=1;n<=3;n++)score[n]+=total?learned[n]/total:0;const r=recent.slice(-8);if(r.length)for(let n=1;n<=3;n++)score[n]+=r.filter(x=>x===n).length/r.length;if(recent.length>=2&&recent.at(-1)===recent.at(-2))score[recent.at(-1)]+=.25;const sum=score[1]+score[2]+score[3];return score.map(x=>x/sum);}
+function chooseAI(){const prob=predict(),most=[1,2,3].sort((a,b)=>prob[b]-prob[a])[0],labels={1:'チャージ',2:'はー！',3:'バリア'};const strength=difficulty==='easy'?.35:difficulty==='normal'?1:1.65;const value={1:0,2:0,3:0,4:0,5:0};value[2]+=prob[1]*2.8*strength;value[3]+=prob[2]*3*strength;value[1]+=prob[3]*2*strength;if(cc===0){value[1]+=1.5;if(mc>0)value[3]+=.9;}else{value[2]+=.55;value[3]+=(mc>0?.9:.2);value[1]+=.3;}if(mc>=2)value[3]+=1.1;if(mc>=4)value[3]+=.8;if(cc>=3)value[2]+=.7;if(cc>=5)value[2]+=1;for(let n=1;n<=3;n++)value[n]+=(Math.random()-.5)*(difficulty==='easy'?2.2:difficulty==='normal'?.9:.35);if(cc===0)value[2]=-999;value[4]=cc>=5?(prob[1]*2.2+prob[3]*.4):-999;value[5]=cc>=2?(prob[2]*2.4+prob[1]*.8+prob[3]*.2):-999;const best=Math.max(...Object.values(value)),options=[1,2,3,4,5].filter(n=>value[n]>=best-(difficulty==='hard'?.2:.55));const action=options[Math.floor(Math.random()*options.length)];aiThought='君は「'+labels[most]+'」を選びやすいと予測（'+Math.round(prob[most]*100)+'%）。'+({1:'攻撃のチャンスを狙っている！',2:'バリアを警戒している！',3:'チャージの隙を狙っている！'}[most]);return action;}
+async function playRound(){if(!running||over)return;choice=0;locked=false;render();$('beat').textContent='READY';$('beattext').textContent='手札を選べ！';$('message').textContent='どうする？ 手札を選んで！';for(let i=0;i<3;i++){if(!running)return;$('beat').textContent=['1','2','せーの！'][i];$('beattext').textContent=['いち！','に！','発動！'][i];$('progress').style.width=((i+1)*33.33)+'%';fx('beat');await wait(speed);}if(!running)return;locked=true;const p=choice,a=chooseAI();if(p!==0){if(p<=3){learned[p]++;recent.push(p);if(recent.length>20)recent.shift();saveLearning();}}
+let result='',finish=false,playerWon=false;
+if(p===2)mc=Math.max(0,mc-1);if(a===2)cc=Math.max(0,cc-1);if(p===4)mc=Math.max(0,mc-5);if(a===4)cc=Math.max(0,cc-5);if(p===5)mc=Math.max(0,mc-2);if(a===5)cc=Math.max(0,cc-2);
+if(p===4){if(a===5){result='貫通ビームはミラーを突破！チャッピーに命中！';finish=true;playerWon=true;}else{result='貫通ビームがチャッピーに命中！';finish=true;playerWon=true;}}
+if(!finish&&a===4){if(p===5){result='チャッピーの貫通ビームがミラーを突破！君に命中！';finish=true;}else{result='チャッピーの貫通ビームが命中！';finish=true;}}
+if(!finish&&p===5&&a===2){result='ミラー発動！チャッピーの「はー！」を跳ね返した！';finish=true;playerWon=true;}
+if(!finish&&a===5&&p===2){result='チャッピーのミラー！君の「はー！」が跳ね返された！';finish=true;}
+if(!finish&&p===5&&a===1){mc=Math.min(5,mc+1);cc=Math.max(0,cc-1);result='ミラー成功！チャッピーのチャージ1を奪った！';}
+if(!finish&&a===5&&p===1){cc=Math.min(5,cc+1);mc=Math.max(0,mc-1);result='チャッピーのミラー！君のチャージ1を奪われた！';}
+if(!finish&&p===2&&(a===1||a===0)){result=a===1?'チャージ中にビームが命中！君の勝ち！':'何もしなかったチャッピーにビーム命中！';finish=true;playerWon=true;}
+if(!finish&&a===2&&(p===1||p===0)){result=p===1?'チャージ中にビームが命中！君の負け！':'何もしなかった！ビームを受けて君の負け！';finish=true;}
+if(!finish){if(p===1&&mc<5)mc++;if(a===1&&cc<5)cc++;if(p===2&&a===2)result='ビーム同士が相殺！';else if(p===2&&a===3)result='チャッピーのバリア！攻撃は無効！';else if(p===3&&a===2)result='君のバリア！チャッピーのビームを防いだ！';else if(p===3&&a===4)result='君のバリアは貫通ビームに破られた！';else if(p===3&&a===3)result='両者バリア！';else if(p===1&&a===1)result='両者チャージ成功！';else if(p===1&&a===3)result='君がチャージ！';else if(p===3&&a===1)result='チャッピーがチャージ！';else if(p===0&&a===3)result='チャッピーはバリアを展開！';else if(p===0&&a===0)result='両者何もしなかった！';else if(p===1&&a===5)result='チャッピーがミラー！チャージ奪取は成立せず。';else if(p===5&&a===3)result='君のミラー！チャッピーのバリアには何も起こらない。';else if(p===3&&a===5)result='チャッピーのミラー！君のバリアには何も起こらない。';else if(p===5&&a===0)result='君のミラー！何も起こらなかった。';else if(p===0&&a===5)result='チャッピーのミラー！何も起こらなかった。';else if(p===4&&a===4)result='貫通ビーム同士が激突！';}
+round++;$('message').textContent=result;$('player').textContent=p===2?'🦖💥':p===3?'🦖🛡️':p===1?'🦖⚡':p===4?'🦖🌟':p===5?'🦖🪞':'🦖';$('enemy').textContent=a===2?'🤖💥':a===3?'🤖🛡️':a===1?'🤖⚡':a===4?'🤖🌟':a===5?'🤖🪞':'🤖';
+if(finish){over=true;running=false;$('beat').textContent=playerWon?'YOU WIN!':'YOU LOSE!';$('beattext').textContent=playerWon?'勝利！チャッピーを倒した！':'敗北…次は勝とう！';if(playerWon)victorySound();else defeatSound();}else if(p===2&&a===2)fx('clash');else if(p===2||a===2||p===4||a===4)fx('beam');else if(p===3||a===3||p===5||a===5)fx('shield');else if(p===1||a===1)fx('charge');
+history.unshift({n:round,p,a,result});draw();render();$('progress').style.width='0%';if(running&&!over){$('beattext').textContent='次のターン！';await wait(700);if(running&&!over)playRound();}}
+function draw(){$('history').innerHTML='';if(!history.length){$('history').textContent='まだ履歴はない。';return;}history.slice(0,10).forEach(h=>{const row=document.createElement('div');row.className='logrow';const title=document.createElement('b');title.textContent='ROUND '+h.n;row.append(title);const line=document.createElement('div');line.className='logline';[[h.p,'君'],[h.a,'チャッピー']].forEach(([v,n])=>{const x=document.createElement('span');x.textContent=n+': '+I[v]+' '+N[v];line.append(x);});const res=document.createElement('div');res.style.fontWeight='800';res.style.marginTop='4px';res.textContent=h.result;row.append(line,res);$('history').append(row);});}
+$('start').addEventListener('click',()=>{if(running||over)return;running=true;playRound();render();});
+$('reset').addEventListener('click',()=>{clearTimeout(timer);timer=null;mc=0;cc=0;choice=0;round=0;history=[];running=false;over=false;locked=false;aiThought='前回までの学習データを引き継いだで。';$('beat').textContent='READY';$('beattext').textContent='次のバトルを始めよう！';$('progress').style.width='0%';$('message').textContent='新しい対戦が始められるで！';$('player').textContent='🦖';$('enemy').textContent='🤖';draw();render();});
+[['easy','初級','初級：予測は控えめ。ランダム性が多い。'],['normal','標準','標準：行動傾向を読み、状況に合わせて作戦を変える。'],['hard','上級','上級：直近の行動と全体の傾向を強く分析する。']].forEach(([id,d,desc])=>$(id).addEventListener('click',()=>{if(running)return;difficulty=id;$('difficultyText').textContent=desc;render();}));
+$('sound').addEventListener('click',()=>{sound=!sound;$('sound').textContent=sound?'🔊 音 ON':'🔇 音 OFF';if(sound)tone(600,.12);});
+$('speed').addEventListener('click',()=>{speed=speed===1000?600:speed===600?1400:1000;$('speed').textContent='⏱️ '+(speed===600?'速い':speed===1400?'ゆっくり':'普通');});
+document.addEventListener('keydown',e=>{if(['1','2','3','4','5'].includes(e.key)&&!e.repeat){e.preventDefault();select(Number(e.key));}});
+draw();render();
+})();
+</script>
+</body>
+</html>
