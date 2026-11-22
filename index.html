@@ -196,7 +196,6 @@ function render(){
 [1,2,3,4,5].forEach(n=>$('b'+n).addEventListener('click',()=>select(n)));
 function select(n){if(!running||locked||over||(n===2&&mc<1)||(n===4&&mc<5)||(n===5&&mc<2))return;choice=n;tone(480,.06);render();}
 // remove the earlier select definition
-s=s.replace("function select(n){if(!running||locked||over||(n===2&&mc===0))return;choice=n;tone(480,.06);render();}", '')
 function wait(ms){return new Promise(r=>{timer=setTimeout(r,ms);});}
 function predict(){
  const total=learned[1]+learned[2]+learned[3];let score=[0,.7,.7,.7];
